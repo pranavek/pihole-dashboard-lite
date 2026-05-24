@@ -48,6 +48,18 @@ HOURS_PER_LABEL = 24 // AXIS_LABELS   # interval between labels
 AXIS_HEIGHT = 10                      # px reserved for HH labels under the chart
 AXIS_GAP = 2                          # px between chart bottom and label row
 
+# Pi-hole returns 144 ten-minute buckets per 24h. We collapse three at a time
+# into 48 thirty-minute buckets so each bar is wide enough (~5 px on a 250 px
+# panel) for the hollow-outline-plus-filled-block overlay to actually read on
+# a 1-bit display.
+SRC_BUCKETS = 144
+CHART_BUCKETS = 48
+GROUP_SIZE = SRC_BUCKETS // CHART_BUCKETS
+
+
+def _downsample(values, group_size):
+    return [sum(values[i:i + group_size]) for i in range(0, len(values), group_size)]
+
 
 class DisplayService:
     def __init__(self):
@@ -108,8 +120,8 @@ class DisplayService:
         chart_height = chart_bottom - CHART_TOP
         chart_width = width - 2
 
-        totals = totals[-144:]
-        blocked = blocked[-144:]
+        totals = _downsample(totals[-SRC_BUCKETS:], GROUP_SIZE)
+        blocked = _downsample(blocked[-SRC_BUCKETS:], GROUP_SIZE)
         n = len(totals)
 
         peak = max(totals) or 1
