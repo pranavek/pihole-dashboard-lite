@@ -1,0 +1,6 @@
+{
+  "pihole": {
+    "base_url": "http://pi.hole",
+    "password": "REPLACE_WITH_PIHOLE_APP_PASSWORD"
+  }
+}
